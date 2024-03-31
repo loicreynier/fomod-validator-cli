@@ -12,6 +12,7 @@ python = "^3.11"
 pyfomod = "^1.2.1"
 typer = "^0.9.0"
 typing-extensions = "^4.8.0"
+rich = "^13.5.2"
 
 [tool.poetry.group.dev.dependencies]
 poetry = "^1.8.2"

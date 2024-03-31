@@ -18,6 +18,7 @@
 
     pythonDeps = with pkgs.python3Packages; [
       pyfomod
+      rich
       typing-extensions
       typer
     ];

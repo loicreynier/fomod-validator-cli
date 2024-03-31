@@ -6,14 +6,21 @@ from typing_extensions import Annotated
 
 app = typer.Typer(
     add_completion=False,
+    rich_markup_mode="rich",
 )
 
 
-@app.command()
+@app.command(
+    help=(
+        "[bold green]Validate[/bold green] "
+        "FOMod installer in [underline]path[/underline]"
+    ),
+)
 def validate(
     path: Annotated[
         Path,
         typer.Argument(
+            help="Path of the folder containing the FOMod directory.",
             exists=True,
             dir_okay=True,
             file_okay=False,
@@ -22,10 +29,12 @@ def validate(
         ),
     ],
 ):
+    """Validate FOMod installer in `path`."""
     validate_fomod(path)
 
 
 def fomod_image_warnings(path: Path, instance):
+    """Missing image warnings."""
     source = Path(path) / instance.image
     warnings = []
     if not source.exists():
@@ -43,6 +52,8 @@ def fomod_image_warnings(path: Path, instance):
 
 
 def validate_fomod(path: Path):
+    """Validate FOMod installer in `path` using `pyfomod.parse.validate`
+    and exit with status 1 if warnings are found."""
     warnings = pyfomod.parse(path, lineno=True).validate(
         Root=[lambda x: fomod_image_warnings(path, x)],
     )
