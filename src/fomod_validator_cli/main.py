@@ -2,12 +2,17 @@ from pathlib import Path
 
 import pyfomod
 import typer
+from rich.console import Console
+from rich.panel import Panel
+from rich.text import Text
 from typing_extensions import Annotated
 
 app = typer.Typer(
     add_completion=False,
     rich_markup_mode="rich",
 )
+
+error_console = Console(stderr=True)
 
 
 @app.command(
@@ -28,12 +33,12 @@ def validate(
             resolve_path=True,
         ),
     ],
-):
+) -> None:
     """Validate FOMod installer in `path`."""
     validate_fomod(path)
 
 
-def fomod_image_warnings(path: Path, instance):
+def fomod_image_warnings(path: Path, instance) -> list[pyfomod.ValidationWarning]:
     """Missing image warnings."""
     source = Path(path) / instance.image
     warnings = []
@@ -51,7 +56,7 @@ def fomod_image_warnings(path: Path, instance):
     return warnings
 
 
-def validate_fomod(path: Path):
+def validate_fomod(path: Path) -> None:
     """Validate FOMod installer in `path` using `pyfomod.parse.validate`
     and exit with status 1 if warnings are found."""
     warnings = pyfomod.parse(path, lineno=True).validate(
@@ -59,14 +64,27 @@ def validate_fomod(path: Path):
     )
     if warnings:
         for warning in warnings:
-            typer.secho(
-                f"{warning.elem.lineno}: {warning.title} - {warning.msg}\n",
-                fg=typer.colors.RED if warning.critical else None,
-                err=True,
+            print_warning_panel(
+                f"L{warning.elem.lineno}: {warning.msg}",
+                warning.title,
+                critical=warning.critical,
             )
         raise typer.Exit(code=1)
     else:
         typer.Exit()
+
+
+def print_warning_panel(message: str, title: str, critical: bool = False) -> None:
+    """Print Rich warning panel."""
+    color = "red" if critical else "yellow"
+    error_console.print(
+        Panel.fit(
+            Text(f"{message}", justify="left"),
+            border_style=color,
+            title=f"Warning: {title}",
+            title_align="left",
+        )
+    )
 
 
 def main():

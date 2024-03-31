@@ -26,7 +26,7 @@
     pythonPackage = with pkgs.python3.pkgs;
       buildPythonApplication {
         pname = "fomod-validator-cli";
-        version = "unstable-2024-03-21";
+        version = "unstable-2024-03-31";
         src = self;
         format = "pyproject";
 
